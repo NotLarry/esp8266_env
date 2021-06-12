@@ -1,10 +1,5 @@
-/*********
- *********/
-//#include "ESP8266WiFi.h"
-//#include "ESP8266WiFiMulti.h"
 #include "ESP8266HTTPClient.h"
 #include "WiFiClientSecure.h"
-//#include "WiFiClientSecureAxTLS.h"
 #include "sekrits.h"
 #include "Adafruit_MCP9808.h"
 #include "Adafruit_SSD1306.h"
@@ -12,7 +7,6 @@
 #include "NTPClient.h"
 #include "WiFiUdp.h"
 WiFiClientSecure client;
-//#include "discord.h"
 const String discord_webhook = SEKRIT_WEBHOOK;
 const String discord_tts = SEKRIT_TTS;
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -93,20 +87,19 @@ void loop() {
   tempsensor.shutdown_wake(1);
   delay(2000);
   tempsensor.shutdown_wake(0);
+  displaytext();
 
 }
 
 
 void displaytext(void) {
-  for (;;) {
+ // for (;;) {
   float c = tempsensor.readTempC();
   float f = c * 9.0 / 5.0 + 32;
 timeClient.update(); 
 
 delay(1000);
   display.clearDisplay();
-//  float c = tempsensor.readTempC();
-//  float f = tempsensor.readTempF();
   display.setTextSize(2); // Draw 2X-scale text
   display.setTextColor(WHITE);
   display.setCursor(0, 3
@@ -116,7 +109,7 @@ delay(1000);
   display.display();      // Show initial text
   delay(100);
 
-}
+//}
 
 
 
