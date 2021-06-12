@@ -6,11 +6,17 @@
 #include "ESP8266WiFi.h"
 #include "NTPClient.h"
 #include "WiFiUdp.h"
+#include "ESP8266WiFiMulti.h"
+
+ESP8266WiFiMulti WiFiMulti;
 WiFiClientSecure client;
+
+
 const String discord_webhook = SEKRIT_WEBHOOK;
 const String discord_tts = SEKRIT_TTS;
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
+int count = 0;
 
 const char* timeish = "10:33:43";
 // Create the MCP9808 temperature sensor object
@@ -87,17 +93,16 @@ void loop() {
   tempsensor.shutdown_wake(1);
   delay(2000);
   tempsensor.shutdown_wake(0);
-  displaytext();
-
+ 
 }
 
 
 void displaytext(void) {
- // for (;;) {
+  for (;;) {
   float c = tempsensor.readTempC();
   float f = c * 9.0 / 5.0 + 32;
 timeClient.update(); 
-
+  f = f+1;
 delay(1000);
   display.clearDisplay();
   display.setTextSize(2); // Draw 2X-scale text
@@ -108,8 +113,16 @@ delay(1000);
   display.println(String(f)+ "F");
   display.display();      // Show initial text
   delay(100);
-
-//}
+  Serial.println(count++);
+  
+  if(f > 90) 
+  {
+    connectWIFI();
+    sendDiscord("The Temperture is too high");
+    sendDiscord(String(f)+ "F");
+    
+  }
+}
 
 
 
@@ -154,4 +167,19 @@ void sendDiscord(String content) {
   }
 
   // End extra scoping block
+}
+void connectWIFI() {
+
+  WiFiMulti.addAP(SEKRIT_SSID, SEKRIT_PASS);
+  WiFi.mode(WIFI_STA);
+  client.setInsecure();
+  Serial.print("[WiFi] Connecting to: ");
+  Serial.println(ssid);
+  // wait for WiFi connection
+  while ((WiFiMulti.run() != WL_CONNECTED)) {
+    Serial.print(".");
+    delay(100);
+  }
+  Serial.println();
+  Serial.println("[WiFi] Connected");
 }
